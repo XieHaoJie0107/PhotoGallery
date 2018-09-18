@@ -1,5 +1,6 @@
 package xhj.zime.com.photogallery;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -43,6 +44,9 @@ public class PhotoGalleryFragment extends Fragment {
         setHasOptionsMenu(true);
         updateItems();
 
+        PollService.setServiceAlarm(getActivity(),true);
+
+
         Handler responseHandler = new Handler();
         mThumbnailDownloader = new ThumbnailDownloader<>(responseHandler);
         mThumbnailDownloader.setThumbnailDownloaderListener(new ThumbnailDownloader.ThumbnailDownloaderListener<PhotoHolder>() {
@@ -81,7 +85,7 @@ public class PhotoGalleryFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String query = QueryPreferences.getStoredQuery(getActivity());
-                searchView.setQuery(query,true);
+                searchView.setQuery(query,false);
             }
         });
     }
