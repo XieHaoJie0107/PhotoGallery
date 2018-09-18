@@ -18,8 +18,35 @@ import java.util.List;
 public class FlickrFectchr {
 
     private static final String TAG = "FlickrFectchr";
+    private static final String FETCH_RECENTS_METHOD = "全部";
+    private static final String SEARCH_METHOD = "";
+    private static final Uri ENDPOINT = Uri.parse("http://image.baidu.com/channel/listjson/")
+            .buildUpon()
+            .appendQueryParameter("pn","0")
+            .appendQueryParameter("rn","30")
+            .appendQueryParameter("tag1","明星")
+            .appendQueryParameter("ie","utf8")
+            .build();
 
-    public void parseItems(List<GalleryItem> items,JSONObject jsonBody) throws JSONException {
+    public List<GalleryItem> fetchRecentPhotos(){
+        String url = buildUrl(FETCH_RECENTS_METHOD,null);
+        return downloadGalleryItems(url);
+    }
+
+    public List<GalleryItem> searchPhotos(String query){
+        String url = buildUrl(SEARCH_METHOD,query);
+        return downloadGalleryItems(url);
+    }
+
+    private String buildUrl(String method,String query){
+        Uri.Builder uriBuild = ENDPOINT.buildUpon().appendQueryParameter("tag2", method);
+        if (method.equals(SEARCH_METHOD)) {
+            uriBuild.appendQueryParameter("ftags",query);
+        }
+        return uriBuild.build().toString();
+    }
+
+    private void parseItems(List<GalleryItem> items,JSONObject jsonBody) throws JSONException {
         JSONArray photoJsonArray = jsonBody.getJSONArray("data");
         for (int i = 0; i < photoJsonArray.length() ; i++){
             JSONObject photoJsonObject = photoJsonArray.getJSONObject(i);
@@ -35,17 +62,8 @@ public class FlickrFectchr {
     }
 
 
-    public List<GalleryItem> fetchItems(){
+    private List<GalleryItem> downloadGalleryItems(String url){
         List<GalleryItem> items = new ArrayList<>();
-        String url = Uri.parse("http://image.baidu.com/channel/listjson/")
-                .buildUpon()
-                .appendQueryParameter("pn","0")
-                .appendQueryParameter("rn","30")
-                .appendQueryParameter("tag1","明星")
-                .appendQueryParameter("tag2","全部")
-                .appendQueryParameter("ftags","女明星##内地")
-                .appendQueryParameter("ie","utf8")
-                .build().toString();
         try {
             String jsonString = getUrlString(url);
             JSONObject jsonObject = new JSONObject(jsonString);
