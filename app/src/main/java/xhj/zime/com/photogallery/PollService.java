@@ -1,5 +1,6 @@
 package xhj.zime.com.photogallery;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.Notification;
@@ -25,6 +26,13 @@ public class PollService extends IntentService {
     //1分钟的毫秒数,不需要自己计算
     private static final long POLL_INTERVAL_MS = TimeUnit.MINUTES.toMillis(1);
 
+    public static final String ACTION_SHOW_NOTIFICATION = "xhj.zime.com.photogallery.SHOW_NOTIFICATION";
+
+    public static final String PERM_PRIVATE = "xhj.zime.com.photogallery.PRIVATE";
+
+    public static final String REQUEST_CODE = "REQUEST_CODE";
+    public static final String NOTIFICATION = "NOTIFICATION";
+
     public static Intent newIntent(Context context) {
         return new Intent(context, PollService.class);
     }
@@ -45,6 +53,7 @@ public class PollService extends IntentService {
             alarmManager.cancel(pi);
             pi.cancel();
         }
+        QueryPreferences.setAlarmOn(context,isOn);
     }
 
     public PollService() {
@@ -53,6 +62,7 @@ public class PollService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
+        Log.i(TAG, "onHandleIntent: ");
         if (!isNetworkAvailableAndConnected()) {
             return;
         }
@@ -75,6 +85,7 @@ public class PollService extends IntentService {
             Intent i = PhotoGalleryActivity.newIntent(this);
             PendingIntent pi = PendingIntent.getActivity(this,0,i,0);
             Resources resources = getResources();
+
             Notification notification = new NotificationCompat.Builder(this)
                     .setTicker(resources.getString(R.string.new_pictures_title))
                     .setSmallIcon(android.R.drawable.ic_menu_report_image)
@@ -83,10 +94,19 @@ public class PollService extends IntentService {
                     .setContentIntent(pi)
                     .setAutoCancel(true)
                     .build();
-            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-            notificationManager.notify(0,notification);
+//            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+//            notificationManager.notify(0,notification);
+//            sendBroadcast(new Intent(ACTION_SHOW_NOTIFICATION));
+            showBackgroudNotification(0,notification);
         }
         QueryPreferences.setPrefLastResultId(this, resultId);
+    }
+
+    private void showBackgroudNotification(int requestCode, Notification notification) {
+        Intent intent = new Intent(ACTION_SHOW_NOTIFICATION);
+        intent.putExtra(REQUEST_CODE,requestCode);
+        intent.putExtra(NOTIFICATION,notification);
+        sendOrderedBroadcast(intent,PERM_PRIVATE,null,null, Activity.RESULT_OK,null,null);
     }
 
     public boolean isNetworkAvailableAndConnected() {

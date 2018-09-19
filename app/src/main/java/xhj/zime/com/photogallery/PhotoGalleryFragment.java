@@ -28,7 +28,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PhotoGalleryFragment extends Fragment {
+public class PhotoGalleryFragment extends VisibleFragment {
 
     private static final String TAG = "PhotoGalleryFragment";
 
@@ -172,6 +172,7 @@ public class PhotoGalleryFragment extends Fragment {
         @Override
         protected void onPostExecute(List<GalleryItem> items) {
             mItems = items;
+            QueryPreferences.setPrefLastResultId(getActivity(),items.get(0).getId());
             setupAdapter();
         }
     }
