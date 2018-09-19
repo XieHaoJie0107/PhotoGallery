@@ -50,12 +50,12 @@ public class FlickrFectchr {
         JSONArray photoJsonArray = jsonBody.getJSONArray("data");
         for (int i = 0; i < photoJsonArray.length() ; i++){
             JSONObject photoJsonObject = photoJsonArray.getJSONObject(i);
-            GalleryItem item = new GalleryItem();
-            item.setId(photoJsonObject.getString("id"));
-            item.setCaption(photoJsonObject.getString("abs"));
             if (!photoJsonObject.has("image_url")){
                 continue;
             }
+            GalleryItem item = new GalleryItem();
+            item.setId(photoJsonObject.getString("id"));
+            item.setCaption(photoJsonObject.getString("abs"));
             item.setUrl(photoJsonObject.getString("image_url"));
             items.add(item);
         }
